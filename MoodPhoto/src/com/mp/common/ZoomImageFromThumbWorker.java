@@ -10,6 +10,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.view.View;
@@ -17,9 +18,14 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ImageView;
 
 import com.mp.R;
+import com.mp.application.MPApplication;
+import com.mp.util.BitmapUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.assist.LoadedFrom;
+import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
+import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
 /**
  * @Description: 
@@ -70,7 +76,15 @@ public class ZoomImageFromThumbWorker {
 				.cacheInMemory(true)
 				.cacheInMemory(true)
 				.considerExifParams(true)
-				.displayer(new SimpleBitmapDisplayer())
+				.displayer(new BitmapDisplayer() {
+					@Override
+					public void display(Bitmap bitmap, ImageAware imageAware,
+							LoadedFrom loadedFrom) {
+						Bitmap borderBitmap = BitmapUtil.drawableToBitmap(MPApplication.getContext().getResources().getDrawable(R.drawable.bg_white_border));
+						Bitmap newBitmap = BitmapUtil.drawImageBorder(bitmap, borderBitmap);
+						imageAware.setImageBitmap(newBitmap);
+					}
+				})
 				.build());
         
         // Calculate the starting and ending bounds for the zoomed-in image. This step

@@ -4,8 +4,44 @@
         Base application theme for API 11+. This theme completely replaces
         AppBaseTheme from res/values/styles.xml on API 11+ devices.
     -->
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light">
-        <!-- API 11 theme customizations can go here. -->
+    <style name="AppBaseTheme" parent="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppActionBarTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. @style/Theme.AppCompat.Light.DarkActionBar-->
+	    <item name="android:windowActionBarOverlay">true</item>
+	    <item name="android:windowIsTranslucent">true</item>
+        <item name="android:actionBarStyle">@style/TranslucentActionBar</item>
+	    
+	    <!-- Support library compatibility -->
+        <!-- <item name="windowActionBarOverlay">true</item>
+        	 <item name="actionBarStyle">@style/TranslucentActionBar</item> -->
+    </style>
+    
+    <style name="TranslucentActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+    	<item name="android:titleTextStyle">@style/TitleTextStyle</item>
+        <item name="android:background">@drawable/bg_white_light_border</item>
+        <item name="android:backgroundStacked">@drawable/bg_white_light_border</item>
+        <item name="android:backgroundSplit">@drawable/bg_white_light_border</item>
+		
+        <!-- Support library compatibility -->
+        <!-- <item name="titleTextStyle">@style/TitleTextStyle</item>
+        <item name="background">@drawable/bg_white_light_border</item>
+        <item name="backgroundStacked">@drawable/bg_white_light_border</item>
+        <item name="backgroundSplit">@drawable/bg_white_light_border</item> -->
+
+	</style>
+
+     <!-- action bar title text -->
+    <style name="TitleTextStyle"
+           parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
 </resources>

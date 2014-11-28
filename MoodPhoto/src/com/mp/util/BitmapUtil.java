@@ -140,9 +140,14 @@ public class BitmapUtil {
 	public static Bitmap drawImageBorder(Bitmap srcBitmap, Bitmap borderBitmap) {
 		if(srcBitmap == null) throw new NullPointerException("srcBitmap should not null");
 		if(borderBitmap == null) return srcBitmap;
+		Bitmap border = borderBitmap;
+		if (srcBitmap.getWidth() < borderBitmap.getWidth() || 
+				srcBitmap.getHeight() < borderBitmap.getHeight()) {
+			border = zoomBitmap(borderBitmap, srcBitmap.getWidth(), srcBitmap.getHeight());
+		}
 		Canvas canvas = new Canvas(srcBitmap);
 		Matrix m = canvas.getMatrix();//new Matrix();
-		Bitmap newBitmap = Bitmap.createBitmap(borderBitmap, 0, 0, 
+		Bitmap newBitmap = Bitmap.createBitmap(border, 0, 0, 
 				srcBitmap.getWidth(), srcBitmap.getHeight(), m, true);
 		canvas.drawBitmap(newBitmap, 0, 0, null);
 		return srcBitmap;

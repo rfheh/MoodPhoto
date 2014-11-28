@@ -4,7 +4,7 @@
         Base application theme, dependent on API level. This theme is replaced
         by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
     -->
-    <style name="AppBaseTheme" parent="@android:style/Theme.Holo.Light.NoActionBar">
+    <style name="AppBaseTheme" parent="android:Theme.Light.NoTitleBar.Fullscreen">
         <!--
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
@@ -12,38 +12,6 @@
         -->
     </style>
 
-    <!-- Application theme. -->
-    <style name="AppActionBarTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. @style/Theme.AppCompat.Light.DarkActionBar-->
-	    <item name="android:windowActionBarOverlay">true</item>
-	    <item name="android:windowIsTranslucent">true</item>
-        <!-- <item name="android:actionBarStyle">@style/TranslucentActionBar</item> -->
-	    
-	    <!-- Support library compatibility -->
-        <item name="windowActionBarOverlay">true</item>
-        <item name="actionBarStyle">@style/TranslucentActionBar</item>
-    </style>
-    
-    <style name="TranslucentActionBar" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-    	<!-- <item name="android:titleTextStyle">@style/TitleTextStyle</item> -->
-        <item name="android:background">@null</item>
-        <item name="android:backgroundStacked">@null</item>
-        <item name="android:backgroundSplit">@null</item>
-		
-        <!-- Support library compatibility -->
-        <!-- <item name="titleTextStyle">@style/TitleTextStyle</item>
-        <item name="background">@color/baichun</item>
-        <item name="backgroundStacked">@color/baichun</item>
-        <item name="backgroundSplit">@color/baichun</item> -->
-
-	</style>
-
-     <!-- action bar title text -->
-    <style name="TitleTextStyle"
-           parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@android:color/black</item>
-    </style>
-    
     
     <style name="FocusableStyle">
         <item name="android:focusable">true</item>
