@@ -1,0 +1,56 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/MatchParent"  >
+
+    <LinearLayout
+        android:id="@+id/progressContainer"
+        style="@style/MatchParent" 
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <TextView
+        	style="@style/WrapContent" 
+            android:paddingTop="4dip"
+            android:singleLine="true"
+            android:text="@string/loading"
+            android:textAppearance="?android:attr/textAppearanceSmall" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/listContainer"
+        style="@style/MatchParent" 
+        android:background="@color/baichun">
+
+        <!-- android:layout_marginTop="?attr/actionBarSize" -->
+        <ListView
+            android:id="@android:id/list"
+        	style="@style/MatchParent" 
+            android:divider="@null"
+            android:dividerHeight="1dp"
+            android:drawSelectorOnTop="false" />
+
+        <TextView
+            android:id="@android:id/empty"
+            style="@style/emptyTextView"
+            android:layout_height="match_parent" />
+        
+        <RelativeLayout 
+            android:id="@+id/rl_expended"
+            style="@style/MatchParent"
+            android:visibility="invisible"
+            android:background="@drawable/bg_white_border">
+            
+	        <ImageView 
+	            android:id="@+id/iv_expanded"
+	            style="@style/MatchParent"
+	            android:layout_centerHorizontal="true"
+	            android:contentDescription="@string/app_name"/>
+        </RelativeLayout>
+    </FrameLayout>
+
+</FrameLayout>

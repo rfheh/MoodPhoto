@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">语图</string>
+    <string name="title_item_detail">Item Detail</string>
+	<string name="loading">正在加载，稍等一下呗！</string>
+	<string name="empty">Σ(っ °Д °;)っ \n “没有加载到任何东西 ” \n Σ( ° △ °|||)︴</string>
+	<string name="to_write_hint">写下你的想法吧！</string>
+</resources>

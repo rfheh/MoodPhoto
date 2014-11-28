@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    
+	<TextView 
+	    android:id="@+id/tv_year"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center"
+	    android:textSize="50sp"
+	    android:textStyle="bold"
+	    android:textColor="@color/light_blue_4"
+	    android:text="@string/text1"/>
+	
+	<TextView 
+	    android:id="@+id/tv_short_article"
+	    android:layout_width="match_parent"
+	    android:layout_height="80dp"
+	    android:layout_marginTop="@dimen/ui_element_spacing"
+	    android:padding="@dimen/ui_element_spacing_medium"
+	    android:textSize="@dimen/font_size_small"
+	    android:lineSpacingExtra="@dimen/ui_element_spacing_small"
+	    android:text="@string/text2"/>
+	
+	<RelativeLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_marginTop="@dimen/ui_element_spacing_small">
+	    
+	    <TextView 
+	        android:id="@+id/tv_date"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_alignParentLeft="true"
+	        android:layout_marginLeft="@dimen/ui_element_spacing_medium"
+	        android:padding="@dimen/ui_element_spacing_medium"
+	        android:alpha="0.8"
+	        android:background="@drawable/gray_round_shape"
+	        android:gravity="center"
+	        android:textSize="@dimen/font_size_small"
+	        android:textColor="@color/light_blue_7"
+	        android:textStyle="bold"
+	        android:text="@string/text3"/>
+	    
+	    <TextView 
+	        android:id="@+id/tv_read_times"
+	        android:layout_width="@dimen/ui_element_size_small"
+	        android:layout_height="@dimen/ui_element_size_small"
+	        android:layout_alignParentRight="true"
+	        android:layout_marginRight="@dimen/ui_element_spacing_medium"
+	        android:alpha="0.8"
+	        android:background="@drawable/red_round_shape"
+	        android:gravity="center"
+	        android:textSize="@dimen/font_size_small"
+	        android:textStyle="bold"
+	        android:textColor="@android:color/white"
+	        android:text="@string/text4"/>
+	</RelativeLayout>
+	
+</FrameLayout>

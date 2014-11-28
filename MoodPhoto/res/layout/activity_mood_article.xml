@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:sat="http://schemas.android.com/apk/res/com.mp"
+    android:id="@+id/flayout_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    
+    <ImageView 
+        android:id="@+id/iv_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="fitXY"
+        android:contentDescription="@string/app_name"/>
+    
+    <View 
+        android:id="@+id/v_text_span_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/item_bg_shuise2"/>
+    
+    <FrameLayout 
+        android:id="@+id/flayout_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    
+    <com.lib.satellite_menu.SatelliteMenu
+        android:id="@+id/sm_menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|left"
+        android:layout_margin="@dimen/ui_element_spacing_medium"
+        sat:satelliteDistance="140dp"
+        sat:mainImage="@drawable/sat_main"
+        sat:totalSpacingDegree="90"
+        sat:closeOnClick="true"
+        sat:expandDuration="500"
+        android:visibility="gone"/>
+</FrameLayout>
