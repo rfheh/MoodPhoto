@@ -16,7 +16,23 @@ import android.graphics.drawable.Drawable;
 
 public class BitmapUtil {
 
-	//缩放图片 按需求宽高
+	/**
+	 * 判断是否竖型图像
+	 * @param bitmap
+	 * @return
+	 */
+	public static boolean isHorizontalBitmap(Bitmap bitmap) {
+		if(bitmap == null) throw new NullPointerException("Bitmap can not be null!");
+		return bitmap.getWidth() < bitmap.getHeight();
+	}
+	
+	/**
+	 * 缩放图片 按需求宽高
+	 * @param bitmap
+	 * @param w
+	 * @param h
+	 * @return
+	 */
 	public static Bitmap zoomBitmap(Bitmap bitmap, int w, int h) {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
@@ -28,7 +44,12 @@ public class BitmapUtil {
 		return zoomBitmap;
 	}
 	
-	//缩放图片 按比例
+	/**
+	 * 缩放图片 按比例
+	 * @param bitmap
+	 * @param times
+	 * @return
+	 */
 	public static Bitmap zoomBitmap(Bitmap bitmap, float times) {
 		int width = bitmap.getWidth();
 		int height = bitmap.getHeight();
@@ -38,7 +59,11 @@ public class BitmapUtil {
 		return zoomBitmap;
 	}
 	
-	//Drawable 复制到 Bitmap
+	/**
+	 * Drawable 复制到 Bitmap
+	 * @param drawable
+	 * @return
+	 */
 	public static Bitmap drawableToBitmap(Drawable drawable) {
 		int width = drawable.getIntrinsicWidth();
 		int height = drawable.getIntrinsicHeight();
@@ -50,7 +75,12 @@ public class BitmapUtil {
 		return bitmap;
 	}
 	
-	//获取四角圆角 Bitmap
+	/**
+	 * 获取四角圆角 Bitmap
+	 * @param bitmap
+	 * @param roundPx 角度
+	 * @return
+	 */
 	public static Bitmap createRoundCornerBitmap(Bitmap bitmap, float roundPx) {
 		Bitmap roundCornerBitmap = Bitmap.createBitmap(bitmap.getWidth(), bitmap.getHeight(), Bitmap.Config.ARGB_8888);
 		Canvas canvas = new Canvas(roundCornerBitmap);
@@ -136,24 +166,34 @@ public class BitmapUtil {
 		return roundCornerBitmap;
 	}
 	
-	@SuppressWarnings("deprecation")
+	/**
+	 * 合并两张图像
+	 * @param srcBitmap 底图
+	 * @param borderBitmap 前景图
+	 * @return
+	 */
 	public static Bitmap drawImageBorder(Bitmap srcBitmap, Bitmap borderBitmap) {
 		if(srcBitmap == null) throw new NullPointerException("srcBitmap should not null");
 		if(borderBitmap == null) return srcBitmap;
 		Bitmap border = borderBitmap;
-		if (srcBitmap.getWidth() < borderBitmap.getWidth() || 
-				srcBitmap.getHeight() < borderBitmap.getHeight()) {
+		Bitmap temp = srcBitmap.copy(Config.ARGB_8888, true);
+		if (srcBitmap.getWidth() != borderBitmap.getWidth() || 
+				srcBitmap.getHeight() != borderBitmap.getHeight()) {
 			border = zoomBitmap(borderBitmap, srcBitmap.getWidth(), srcBitmap.getHeight());
 		}
-		Canvas canvas = new Canvas(srcBitmap);
-		Matrix m = canvas.getMatrix();//new Matrix();
-		Bitmap newBitmap = Bitmap.createBitmap(border, 0, 0, 
-				srcBitmap.getWidth(), srcBitmap.getHeight(), m, true);
-		canvas.drawBitmap(newBitmap, 0, 0, null);
-		return srcBitmap;
+		Canvas canvas = new Canvas(temp);
+		//Matrix m = canvas.getMatrix();//new Matrix();
+		//Bitmap newBitmap = Bitmap.createBitmap(border, 0, 0, 
+		//		srcBitmap.getWidth(), srcBitmap.getHeight(), m, true);
+		canvas.drawBitmap(border, 0, 0, null);
+		return temp;
 	}
 	
-	//创建带倒影的 Bitmap
+	/**
+	 * 创建带倒影的 Bitmap
+	 * @param bitmap
+	 * @return
+	 */
 	public static Bitmap createInvertedBitmap(Bitmap bitmap) {
 		int reflectionGap = 4;
 		int width = bitmap.getWidth();
@@ -186,7 +226,7 @@ public class BitmapUtil {
 	
 	/**
 	 * 
-	 * @Description: TODO
+	 * @Description: 裁剪图像
 	 * @param src
 	 * @param scale width / height
 	 * @return
@@ -211,4 +251,40 @@ public class BitmapUtil {
 		return src == null ? Bitmap.createBitmap(matrixW, matrixH, Config.ARGB_8888) :
 				Bitmap.createBitmap(src, left, top, matrixW, matrixH);
 	}
+	
+	/**
+	 * 
+	 * @param bm
+	 * @param orientationDegree 角度
+	 * @return
+	 */
+	public static Bitmap adjustPhotoRotation(Bitmap bm, final int orientationDegree) {
+
+        Matrix m = new Matrix();
+        m.setRotate(orientationDegree, (float) bm.getWidth() / 2, (float) bm.getHeight() / 2);
+        float targetX, targetY;
+        if (orientationDegree == 90) {
+	        targetX = bm.getHeight();
+	        targetY = 0;
+        } else {
+	        targetX = bm.getHeight();
+	        targetY = bm.getWidth();
+		}
+		
+	    final float[] values = new float[9];
+	    m.getValues(values);
+	
+	    float x1 = values[Matrix.MTRANS_X];
+	    float y1 = values[Matrix.MTRANS_Y];
+	
+	    m.postTranslate(targetX - x1, targetY - y1);
+	
+	    Bitmap temp = Bitmap.createBitmap(bm.getHeight(), bm.getWidth(), Bitmap.Config.ARGB_8888);
+		
+		Paint paint = new Paint();
+	    Canvas canvas = new Canvas(temp);
+	    canvas.drawBitmap(bm, m, paint);
+
+	    return temp;
+  }
 }

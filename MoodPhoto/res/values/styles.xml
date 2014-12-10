@@ -101,4 +101,10 @@
         <item name="android:paddingLeft">@dimen/ui_element_spacing</item>
         <item name="android:paddingRight">@dimen/ui_element_spacing</item>
     </style>
+    
+    <style name="ImageButton" parent="Button">
+        <item name="android:layout_width">@dimen/ui_element_size_medium</item>
+        <item name="android:layout_height">@dimen/ui_element_size_medium</item>
+        <item name="android:contentDescription">@string/app_name</item>
+    </style>
 </resources>

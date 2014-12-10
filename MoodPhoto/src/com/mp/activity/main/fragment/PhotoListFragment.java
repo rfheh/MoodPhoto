@@ -33,6 +33,7 @@ import com.mp.R;
 import com.mp.adapter.CommonAdapter;
 import com.mp.common.AsyncTask;
 import com.mp.common.ZoomImageFromThumbWorker;
+import com.mp.entity.ArticleText;
 import com.mp.entity.MoodArticle;
 import com.mp.util.BitmapUtil;
 import com.mp.util.DateUtil;
@@ -58,6 +59,7 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 	View mProgressContainerLayout, mListContainerLayout, mEmptyTv, expandededParentView, expandededView;
 	ListView mListView;
 	ImageView expendedIv;
+	TextView mReadCountTv,  mArticleTv;
 	CommonAdapter<MoodArticle> mAdapter;
 	
 	DisplayImageOptions mOptions;
@@ -138,6 +140,9 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 		expandededView = content.findViewById(R.id.rl_expended);
 		expendedIv = (ImageView) content.findViewById(R.id.iv_expanded);
 		
+		mReadCountTv = (TextView) content.findViewById(R.id.tv_count);
+		mArticleTv = (TextView) content.findViewById(R.id.tv_article);
+		
 		String DCIM = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
 		new LoadSDCardPhotoTask().execute(DCIM);
 		
@@ -152,6 +157,10 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 		intent.putExtra(MoodArticle.class.getSimpleName(), (MoodArticle)parent.getItemAtPosition(position));
 		startActivity(intent);*/
 		MoodArticle moodArticle = (MoodArticle) parent.getItemAtPosition(position);
+		mReadCountTv.setText(moodArticle.getReadTimes() + "");
+		mArticleTv.setText(ArticleText.getRadionArticle());
+		
+		
 		View thumbView = view.findViewById(R.id.iv_photo);
 		ZoomImageFromThumbWorker.zoomImageFromThumb(thumbView, expendedIv, expandededView, expandededParentView, moodArticle.getUri());
 	}

@@ -24,7 +24,6 @@ import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
 import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
-import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
 /**
@@ -81,7 +80,8 @@ public class ZoomImageFromThumbWorker {
 					public void display(Bitmap bitmap, ImageAware imageAware,
 							LoadedFrom loadedFrom) {
 						Bitmap borderBitmap = BitmapUtil.drawableToBitmap(MPApplication.getContext().getResources().getDrawable(R.drawable.bg_white_border));
-						Bitmap newBitmap = BitmapUtil.drawImageBorder(bitmap, borderBitmap);
+						Bitmap rotaBitmap = BitmapUtil.isHorizontalBitmap(bitmap) ? bitmap : BitmapUtil.adjustPhotoRotation(bitmap, 90);
+						Bitmap newBitmap = BitmapUtil.drawImageBorder(rotaBitmap, borderBitmap);
 						imageAware.setImageBitmap(newBitmap);
 					}
 				})
