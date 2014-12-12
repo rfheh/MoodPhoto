@@ -45,6 +45,182 @@ public class ZoomImageFromThumbWorker {
      */
     private static int mShortAnimationDuration = 200;
     
+    private View mThumbView, mExpandedView, mExpandedParentView;
+    private ImageView mExpandedImageView;
+    private String mImageUri;
+    
+    // Calculate the starting and ending bounds for the zoomed-in image. This step
+    // involves lots of math. Yay, math.
+    final Rect mStartBounds = new Rect();
+    final Rect mFinalBounds = new Rect();
+    final Point mGlobalOffset = new Point();
+    float mStartScale;
+    AnimatorSet mExpandedSet;
+    AnimatorSet mCloseSet;
+    boolean mHasExpanded;
+    
+    public ZoomImageFromThumbWorker(View thumbView, ImageView expandedImageView, View expandedView, View expandedParentView, String imageUri) {
+    	mThumbView = thumbView;
+    	mExpandedImageView = expandedImageView;
+    	mExpandedView = expandedView;
+    	mExpandedParentView = expandedParentView;
+    	mImageUri = imageUri;
+    	
+    	initAndCalculateViewAreas();
+    }
+    
+    private void initAndCalculateViewAreas() {
+    	// The start bounds are the global visible rectangle of the thumbnail, and the
+        // final bounds are the global visible rectangle of the container view. Also
+        // set the container view's offset as the origin for the bounds, since that's
+        // the origin for the positioning animation properties (X, Y).
+        mThumbView.getGlobalVisibleRect(mStartBounds);
+        mExpandedParentView.getGlobalVisibleRect(mFinalBounds, mGlobalOffset);
+        mStartBounds.offset(-mGlobalOffset.x, -mGlobalOffset.y);
+        mFinalBounds.offset(-mGlobalOffset.x, -mGlobalOffset.y);
+        
+        // Adjust the start bounds to be the same aspect ratio as the final bounds using the
+        // "center crop" technique. This prevents undesirable stretching during the animation.
+        // Also calculate the start scaling factor (the end scaling factor is always 1.0).
+        
+        if ((float) mFinalBounds.width() / mFinalBounds.height()
+                > (float) mStartBounds.width() / mStartBounds.height()) {
+            // Extend start bounds horizontally
+        	mStartScale = (float) mStartBounds.height() / mFinalBounds.height();
+            float startWidth = mStartScale * mFinalBounds.width();
+            float deltaWidth = (startWidth - mStartBounds.width()) / 2;
+            mStartBounds.left -= deltaWidth;
+            mStartBounds.right += deltaWidth;
+        } else {
+            // Extend start bounds vertically
+        	mStartScale = (float) mStartBounds.width() / mFinalBounds.width();
+            float startHeight = mStartScale * mFinalBounds.height();
+            float deltaHeight = (startHeight - mStartBounds.height()) / 2;
+            mStartBounds.top -= deltaHeight;
+            mStartBounds.bottom += deltaHeight;
+        }
+    }
+    
+    private void initExpandedSet(AnimatorSet expandedSet) {
+    	if(expandedSet == null) return;
+    	expandedSet
+    	.play(ObjectAnimator.ofFloat(mExpandedView, View.X, mStartBounds.left,
+                mFinalBounds.left))
+        .with(ObjectAnimator.ofFloat(mExpandedView, View.Y, mStartBounds.top,
+                mFinalBounds.top))
+        .with(ObjectAnimator.ofFloat(mExpandedView, View.SCALE_X, mStartScale, 1f))
+        .with(ObjectAnimator.ofFloat(mExpandedView, View.SCALE_Y, mStartScale, 1f));
+        mExpandedSet.setDuration(mShortAnimationDuration);
+        mExpandedSet.setInterpolator(new DecelerateInterpolator());
+        mExpandedSet.addListener(new AnimatorListenerAdapter() {
+		    @Override
+		    public void onAnimationEnd(Animator animation) {
+		        mCurrentAnimator = null;
+		    }
+		
+		    @Override
+		    public void onAnimationCancel(Animator animation) {
+		        mCurrentAnimator = null;
+		    }
+		});
+    }
+    
+    private void initCloseSet(AnimatorSet closeSet) {
+    	if(closeSet == null) return;
+    	closeSet
+    	.play(ObjectAnimator.ofFloat(mExpandedView, View.X, mStartBounds.left))
+        .with(ObjectAnimator.ofFloat(mExpandedView, View.Y, mStartBounds.top))
+        .with(ObjectAnimator.ofFloat(mExpandedView, View.SCALE_X, mStartScale))
+        .with(ObjectAnimator.ofFloat(mExpandedView, View.SCALE_Y, mStartScale));
+        mCloseSet.setDuration(mShortAnimationDuration);
+        mCloseSet.setInterpolator(new DecelerateInterpolator());
+        mCloseSet.addListener(new AnimatorListenerAdapter() {
+		    @Override
+		    public void onAnimationEnd(Animator animation) {
+		        mThumbView.setAlpha(1f);
+		        mExpandedView.setVisibility(View.GONE);
+		        mCurrentAnimator = null;
+		    }
+		
+		    @Override
+		    public void onAnimationCancel(Animator animation) {
+		        mThumbView.setAlpha(1f);
+		        mExpandedView.setVisibility(View.GONE);
+		        mCurrentAnimator = null;
+		    }
+		});
+    }
+    
+    private void displayImage() {
+    	ImageLoader.getInstance().displayImage(
+        		mImageUri, 
+        		mExpandedImageView, 
+        		new DisplayImageOptions.Builder()
+        		.showImageOnLoading(R.drawable.empty_photo)
+				.cacheInMemory(true)
+				.cacheInMemory(true)
+				.considerExifParams(true)
+				.displayer(new BitmapDisplayer() {
+					@Override
+					public void display(Bitmap bitmap, ImageAware imageAware,
+							LoadedFrom loadedFrom) {
+						Bitmap borderBitmap = BitmapUtil.drawableToBitmap(MPApplication.getContext().getResources().getDrawable(R.drawable.bg_white_border));
+						Bitmap rotaBitmap = BitmapUtil.isHorizontalBitmap(bitmap) ? bitmap : BitmapUtil.adjustPhotoRotation(bitmap, 90);
+						Bitmap newBitmap = BitmapUtil.drawImageBorder(rotaBitmap, borderBitmap);
+						imageAware.setImageBitmap(newBitmap);
+					}
+				})
+				.build());
+    }
+    
+    public void expandedImageFromThumb() {
+    	if(mHasExpanded) return;
+    	
+    	if (mCurrentAnimator != null) {
+			mCurrentAnimator.cancel();
+		}
+    	
+    	displayImage();
+    	
+    	mThumbView.setAlpha(0f);
+        mExpandedView.setVisibility(View.VISIBLE);
+
+        // Set the pivot point for SCALE_X and SCALE_Y transformations to the top-left corner of
+        // the zoomed-in view (the default is the center of the view).
+        mExpandedView.setPivotX(0f);
+        mExpandedView.setPivotY(0f);
+    	
+    	mExpandedSet = new AnimatorSet();
+    	initExpandedSet(mExpandedSet);
+    	mCurrentAnimator = mExpandedSet;
+    	mCurrentAnimator.start();
+    	mHasExpanded = true;
+    }
+    
+    public void closeImageToThumb() {
+    	if(!mHasExpanded) return;
+    	
+    	if (mCurrentAnimator != null) {
+			mCurrentAnimator.cancel();
+		}
+    	
+    	mCloseSet = new AnimatorSet();
+    	initCloseSet(mCloseSet);
+    	mCurrentAnimator = mCloseSet;
+    	mCurrentAnimator.start();
+    	mHasExpanded = false;
+    }
+    
+    public void resetImageUri(View newThumbView, String uri) {
+    	mThumbView = newThumbView;
+    	mImageUri = uri;
+    	initAndCalculateViewAreas();
+    }
+    
+    public boolean hasExpanded() {
+    	return mHasExpanded;
+    }
+    
 	/**
      * "Zooms" in a thumbnail view by assigning the high resolution image to a hidden "zoomed-in"
      * image view and animating its bounds to fit the entire activity content area. More
@@ -61,7 +237,8 @@ public class ZoomImageFromThumbWorker {
      * @param thumbView  The thumbnail view to zoom in.
      * @param imageResId The high-resolution version of the image represented by the thumbnail.
      */
-    public static void zoomImageFromThumb(final View thumbView, ImageView expandedImageView, final View expandedView, View parentView, String uri) {
+    public static void zoomImageFromThumb(final View thumbView, ImageView expandedImageView, final View expandedView, 
+    		View parentView, String uri) {
     	// If there's an animation in progress, cancel it immediately and proceed with this one.
         if (mCurrentAnimator != null) {
             mCurrentAnimator.cancel();
@@ -102,7 +279,7 @@ public class ZoomImageFromThumbWorker {
         startBounds.offset(-globalOffset.x, -globalOffset.y);
         finalBounds.offset(-globalOffset.x, -globalOffset.y);
         
-     // Adjust the start bounds to be the same aspect ratio as the final bounds using the
+        // Adjust the start bounds to be the same aspect ratio as the final bounds using the
         // "center crop" technique. This prevents undesirable stretching during the animation.
         // Also calculate the start scaling factor (the end scaling factor is always 1.0).
         float startScale;

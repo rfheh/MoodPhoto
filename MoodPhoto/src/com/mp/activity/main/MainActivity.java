@@ -16,6 +16,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
@@ -35,6 +37,7 @@ import com.mp.activity.main.fragment.ArticleListFragment;
 import com.mp.activity.main.fragment.PhotoListFragment;
 import com.mp.common.ZoomOutPageTransformer;
 import com.mp.entity.MoodArticle;
+import com.mp.util.AppLog;
 
 /**
  * @Description: 
@@ -51,8 +54,10 @@ public class MainActivity extends BaseActionBarActivity {
 	ViewPager mViewPager;
 	PopupWindow mPopupWindow;
 	ExpandableListView mDateListView;
-	
+	ViewPagerAdapter mAdapter;
 	ArrayList<MoodArticle> mPhotoItems;
+	
+	static OnBackKeyDownListener mOnBackKeyDownListener;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -84,16 +89,48 @@ public class MainActivity extends BaseActionBarActivity {
 		mPopupWindow.setFocusable(true); //获取焦点
 		mPopupWindow.setOutsideTouchable(false);	//设置允许在外点击消失 ，但必须设置 BackgroundDrawable
 		mPopupWindow.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.baichun)));//new ColorDrawable(0xb0000000);
+		
+		mAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+		mViewPager.setAdapter(mAdapter);
+		mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+		mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
+			@Override
+			public void onPageSelected(int arg0) {}
+			
+			@Override
+			public void onPageScrolled(int arg0, float arg1, int arg2) {}
+			
+			@Override
+			public void onPageScrollStateChanged(int arg0) {
+				if (arg0 == 2) { //滑动完毕
+					Fragment currPageFragment = mAdapter.getItem(mViewPager.getCurrentItem());
+					AppLog.i("MainActivity", mViewPager.getCurrentItem() + "");
+					if (currPageFragment instanceof OnBackKeyDownListener) {
+						mOnBackKeyDownListener = (OnBackKeyDownListener) currPageFragment;
+						AppLog.i("MainActivity", "mOnBackKeyDownListener is not null");
+					} else {
+						mOnBackKeyDownListener = null;
+						AppLog.i("MainActivity", "mOnBackKeyDownListener is null");
+					}
+				}
+			}
+		});
 	}
 	
 	@Override
 	protected void onResume() {
 		
 		super.onResume();
-		
-		PagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-		mViewPager.setAdapter(adapter);
-		mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+		AppLog.i("MainActivity", "onResume");
+		Fragment currPageFragment = mAdapter.getItem(mViewPager.getCurrentItem());
+		AppLog.i("MainActivity", mViewPager.getCurrentItem() + "");
+		if (currPageFragment instanceof OnBackKeyDownListener) {
+			mOnBackKeyDownListener = (OnBackKeyDownListener) currPageFragment;
+			AppLog.i("MainActivity", "mOnBackKeyDownListener is not null");
+		} else {
+			mOnBackKeyDownListener = null;
+			AppLog.i("MainActivity", "mOnBackKeyDownListener is null");
+		}
 	}
 	
 	@Override
@@ -112,6 +149,13 @@ public class MainActivity extends BaseActionBarActivity {
 			
 			
 			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_BACK) {
+			
+			if(mOnBackKeyDownListener != null && mOnBackKeyDownListener.onBackKeyDown())
+				return true;
+			else
+				return super.onKeyDown(keyCode, event);
+			
 		}
 		return super.onKeyDown(keyCode, event);
 		    
@@ -131,7 +175,11 @@ public class MainActivity extends BaseActionBarActivity {
 
 		@Override
 		public Fragment getItem(int arg0) {
-			
+			if(FRAGMENTS[arg0] instanceof PhotoListFragment)
+				mOnBackKeyDownListener = (OnBackKeyDownListener) FRAGMENTS[arg0];
+			else {
+				mOnBackKeyDownListener = null;
+			}
 			return FRAGMENTS[arg0];
 			    
 		}
@@ -221,6 +269,10 @@ public class MainActivity extends BaseActionBarActivity {
             return true;
         }
 
+    }
+
+    public interface OnBackKeyDownListener {
+    	public boolean onBackKeyDown();
     }
 }
 

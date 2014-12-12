@@ -30,6 +30,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.mp.R;
+import com.mp.activity.main.MainActivity.OnBackKeyDownListener;
 import com.mp.adapter.CommonAdapter;
 import com.mp.common.AsyncTask;
 import com.mp.common.ZoomImageFromThumbWorker;
@@ -52,7 +53,7 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
  * @Since:2014-8-27
  */
 
-public class PhotoListFragment extends Fragment implements OnItemClickListener {
+public class PhotoListFragment extends Fragment implements OnItemClickListener, OnBackKeyDownListener {
 
 	private static PhotoListFragment mFragment;
 	
@@ -63,6 +64,8 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 	CommonAdapter<MoodArticle> mAdapter;
 	
 	DisplayImageOptions mOptions;
+	
+	ZoomImageFromThumbWorker mZoomImageFromThumbWorker;
 	
 	//DiskImageFatcher mImageFatcher;
 	//ImageCacheParams mCacheParams;
@@ -94,6 +97,7 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 					
 				})
 				.build();
+		
 		
 		/*mCacheParams = new ImageCacheParams(getActivity());
 		mCacheParams.setMemCacheSizePercent(0.5f); // Set memory cache to 50% of app memory
@@ -162,7 +166,22 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 		
 		
 		View thumbView = view.findViewById(R.id.iv_photo);
-		ZoomImageFromThumbWorker.zoomImageFromThumb(thumbView, expendedIv, expandededView, expandededParentView, moodArticle.getUri());
+		if (mZoomImageFromThumbWorker == null) {
+			mZoomImageFromThumbWorker = new ZoomImageFromThumbWorker(thumbView, expendedIv, expandededView, expandededParentView, moodArticle.getUri());
+		} else {
+			mZoomImageFromThumbWorker.resetImageUri(thumbView, moodArticle.getUri());
+		}
+		mZoomImageFromThumbWorker.expandedImageFromThumb();
+		//ZoomImageFromThumbWorker.zoomImageFromThumb(thumbView, expendedIv, expandededView, expandededParentView, moodArticle.getUri());
+	}
+	
+	@Override
+	public boolean onBackKeyDown() {
+		if (mZoomImageFromThumbWorker != null && mZoomImageFromThumbWorker.hasExpanded()) {
+			mZoomImageFromThumbWorker.closeImageToThumb();
+			return true;
+		}
+		return false;
 	}
 	
 	@Override
@@ -277,7 +296,7 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 				holder = (Holder) convertView.getTag();
 			}
 			
-			holder.markIv.setImageResource(R.drawable.icon_feelling_great);
+			holder.markIv.setImageResource(R.drawable.icon_heart_blue);
 			holder.dateTv.setText(getItem(position).getDate());
 			//ImageView photoIv = holder.photoIv;
 			ImageLoader.getInstance().displayImage(getItem(position).getUri(), holder.photoIv, mOptions);
