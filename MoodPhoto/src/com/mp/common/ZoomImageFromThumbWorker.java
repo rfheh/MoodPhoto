@@ -27,7 +27,7 @@ import com.nostra13.universalimageloader.core.display.BitmapDisplayer;
 import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
 /**
- * @Description: 
+ * @Description: 缩放效果
  * @Author:hx Lu
  * @Since:2014-11-27
  */
@@ -185,7 +185,7 @@ public class ZoomImageFromThumbWorker {
     	mThumbView.setAlpha(0f);
         mExpandedView.setVisibility(View.VISIBLE);
 
-        // Set the pivot point for SCALE_X and SCALE_Y transformations to the top-left corner of
+        // Set the pivot point for SCaALE_X and SCALE_Y transformations to the top-left corner of
         // the zoomed-in view (the default is the center of the view).
         mExpandedView.setPivotX(0f);
         mExpandedView.setPivotY(0f);
@@ -202,6 +202,12 @@ public class ZoomImageFromThumbWorker {
     	
     	if (mCurrentAnimator != null) {
 			mCurrentAnimator.cancel();
+		}
+    	
+    	if (mThumbView == null) {
+    		mExpandedView.setVisibility(View.GONE);
+	        mCurrentAnimator = null;
+	        return;
 		}
     	
     	mCloseSet = new AnimatorSet();

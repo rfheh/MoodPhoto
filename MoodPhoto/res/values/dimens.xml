@@ -26,4 +26,8 @@
     <!-- photo size -->
 	<dimen name="image_thumbnail_size">100dp</dimen>
 	<dimen name="image_header_size">64dp</dimen>
+	
+	<!-- blind size -->
+	<dimen name="blindHeight">37dp</dimen>
+    <dimen name="touchEffectRadius">101dp</dimen>
 </resources>
