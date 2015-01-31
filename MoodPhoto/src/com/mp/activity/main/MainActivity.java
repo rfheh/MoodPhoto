@@ -9,35 +9,22 @@ package com.mp.activity.main;
 
 import java.util.ArrayList;
 
-import android.graphics.drawable.ColorDrawable;
+import android.R.integer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.Log;
-import android.view.Gravity;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
+import android.support.v7.app.ActionBar.TabListener;
 import android.view.KeyEvent;
-import android.view.View;
-import android.view.View.OnKeyListener;
-import android.view.ViewGroup;
-import android.view.WindowManager.LayoutParams;
-import android.widget.AbsListView;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
-import android.widget.PopupWindow;
-import android.widget.TextView;
 
 import com.mp.R;
 import com.mp.activity.BaseActionBarActivity;
-import com.mp.activity.BaseActivity;
+import com.mp.activity.article.fragment.ArticleDetailFragment;
 import com.mp.activity.main.fragment.ArticleListFragment;
 import com.mp.activity.main.fragment.PhotoListFragment;
-import com.mp.common.ZoomOutPageTransformer;
+import com.mp.activity.main.fragment.UserPhotosFragment;
 import com.mp.entity.MoodArticle;
-import com.mp.util.AppLog;
 
 /**
  * @Description: 
@@ -46,18 +33,16 @@ import com.mp.util.AppLog;
  * @Version:1.1.0
  */
 
-public class MainActivity extends BaseActionBarActivity {
+public class MainActivity extends BaseActionBarActivity implements TabListener {
 
 	public static final String KEY_PHOTO_ITEMS = "KEY_PHOTO_ITEMS";
+	static final int TAB_PHOTOS = 0;
+	static final int TAB_PHOTO_LIST = 1;
+	static final int TAB_ARTICLES = 2;
 	
-	View mContentView;
-	ViewPager mViewPager;
-	PopupWindow mPopupWindow;
-	ExpandableListView mDateListView;
-	ViewPagerAdapter mAdapter;
+	
 	ArrayList<MoodArticle> mPhotoItems;
-	
-	static OnBackKeyDownListener mOnBackKeyDownListener;
+	Tab mPreviouslySelectedTab;
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -69,68 +54,22 @@ public class MainActivity extends BaseActionBarActivity {
 			mPhotoItems = (ArrayList<MoodArticle>) arg0.getSerializable(KEY_PHOTO_ITEMS);
 		}
 		
-		setContentView(R.layout.activity_main_images);   
+		setContentView(R.layout.activity_main_images);  
 		
-		mContentView = findViewById(R.id.vp_content);
-		mViewPager = (ViewPager) findViewById(R.id.vp_content);
+		ActionBar ab = getSupportActionBar();
+		ab.setDisplayShowTitleEnabled(false);
+		ab.setNavigationMode(ab.getNavigationMode() == ActionBar.NAVIGATION_MODE_STANDARD
+            ? ActionBar.NAVIGATION_MODE_TABS : ActionBar.NAVIGATION_MODE_STANDARD);
+		ab.addTab(ab.newTab().setText(R.string.tab_photos).setTag(TAB_PHOTOS).setTabListener(this));
+		ab.addTab(ab.newTab().setText(R.string.tab_photo_list).setTag(TAB_PHOTO_LIST).setTabListener(this));
+		ab.addTab(ab.newTab().setText(R.string.tab_articles).setTag(TAB_ARTICLES).setTabListener(this));
 		
-		mDateListView = new ExpandableListView(MainActivity.this);
-		mDateListView.setOnKeyListener(new OnKeyListener() {
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
-				if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_MENU && mPopupWindow.isShowing()) {
-					mPopupWindow.dismiss();
-				}
-				return false;
-			}
-		});
-		mDateListView.setAdapter(new MyExpandableListAdapter());
-		mPopupWindow = new PopupWindow(mDateListView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-		mPopupWindow.setFocusable(true); //获取焦点
-		mPopupWindow.setOutsideTouchable(false);	//设置允许在外点击消失 ，但必须设置 BackgroundDrawable
-		mPopupWindow.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.baichun)));//new ColorDrawable(0xb0000000);
-		
-		mAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-		mViewPager.setAdapter(mAdapter);
-		mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
-		mViewPager.setOnPageChangeListener(new OnPageChangeListener() {
-			@Override
-			public void onPageSelected(int arg0) {}
-			
-			@Override
-			public void onPageScrolled(int arg0, float arg1, int arg2) {}
-			
-			@Override
-			public void onPageScrollStateChanged(int arg0) {
-				if (arg0 == 2) { //滑动完毕
-					Fragment currPageFragment = mAdapter.getItem(mViewPager.getCurrentItem());
-					AppLog.i("MainActivity", mViewPager.getCurrentItem() + "");
-					if (currPageFragment instanceof OnBackKeyDownListener) {
-						mOnBackKeyDownListener = (OnBackKeyDownListener) currPageFragment;
-						AppLog.i("MainActivity", "mOnBackKeyDownListener is not null");
-					} else {
-						mOnBackKeyDownListener = null;
-						AppLog.i("MainActivity", "mOnBackKeyDownListener is null");
-					}
-				}
-			}
-		});
 	}
 	
 	@Override
 	protected void onResume() {
 		
 		super.onResume();
-		AppLog.i("MainActivity", "onResume");
-		Fragment currPageFragment = mAdapter.getItem(mViewPager.getCurrentItem());
-		AppLog.i("MainActivity", mViewPager.getCurrentItem() + "");
-		if (currPageFragment instanceof OnBackKeyDownListener) {
-			mOnBackKeyDownListener = (OnBackKeyDownListener) currPageFragment;
-			AppLog.i("MainActivity", "mOnBackKeyDownListener is not null");
-		} else {
-			mOnBackKeyDownListener = null;
-			AppLog.i("MainActivity", "mOnBackKeyDownListener is null");
-		}
 	}
 	
 	@Override
@@ -141,139 +80,56 @@ public class MainActivity extends BaseActionBarActivity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		
-		if (keyCode == KeyEvent.KEYCODE_MENU) {
-			if (!mPopupWindow.isShowing()) {
-				mPopupWindow.showAtLocation(mViewPager, Gravity.LEFT, 0, 0);
-				mPopupWindow.update();	
-			}
-			
-			
-			return true;
-		} else if (keyCode == KeyEvent.KEYCODE_BACK) {
-			
-			if(mOnBackKeyDownListener != null && mOnBackKeyDownListener.onBackKeyDown())
-				return true;
-			else
-				return super.onKeyDown(keyCode, event);
+		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			
 		}
 		return super.onKeyDown(keyCode, event);
 		    
 	}
 	
-	
-	static class ViewPagerAdapter extends FragmentStatePagerAdapter {
+	@Override
+	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
+	}
 
-		private static final Fragment[] FRAGMENTS = new Fragment[]
-				{PhotoListFragment.getInstance(), ArticleListFragment.getInstance()};
-		
-		public ViewPagerAdapter(FragmentManager fm) {
-			
-			super(fm);
-			    
-		}
-
-		@Override
-		public Fragment getItem(int arg0) {
-			if(FRAGMENTS[arg0] instanceof PhotoListFragment)
-				mOnBackKeyDownListener = (OnBackKeyDownListener) FRAGMENTS[arg0];
-			else {
-				mOnBackKeyDownListener = null;
-			}
-			return FRAGMENTS[arg0];
-			    
-		}
-
-		@Override
-		public int getCount() {
-			
-			return FRAGMENTS.length;
-			    
-		}
-		
+	@Override
+	public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {
+		//onTabUnselected(...) would could before  onTabSelected(...)
+		mPreviouslySelectedTab = arg0;
 	}
 	
-	/**
-     * A simple adapter which maintains an ArrayList of photo resource Ids. 
-     * Each photo is displayed as an image. This adapter supports clearing the
-     * list of photos and adding a new photo.
-     *
-     */
-    public class MyExpandableListAdapter extends BaseExpandableListAdapter {
-        // Sample data set.  children[i] contains the children (String[]) for groups[i].
-        private String[] groups = { "People Names", "Dog Names", "Cat Names", "Fish Names" };
-        private String[][] children = {
-                { "Arnold", "Barry", "Chuck", "David" },
-                { "Ace", "Bandit", "Cha-Cha", "Deuce" },
-                { "Fluffy", "Snuggles" },
-                { "Goldy", "Bubbles" }
-        };
-        
-        public Object getChild(int groupPosition, int childPosition) {
-            return children[groupPosition][childPosition];
-        }
+	@Override
+	public void onTabSelected(Tab arg0, FragmentTransaction arg1) {
+		System.out.println("onTabSelected");
+		final int id = (Integer) arg0.getTag();
+		replacePrimaryFragment(id, arg1);
+		supportInvalidateOptionsMenu();
+	}
 
-        public long getChildId(int groupPosition, int childPosition) {
-            return childPosition;
-        }
-
-        public int getChildrenCount(int groupPosition) {
-            return children[groupPosition].length;
-        }
-
-        public TextView getGenericView() {
-            // Layout parameters for the ExpandableListView
-            AbsListView.LayoutParams lp = new AbsListView.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, 120);
-
-            TextView textView = new TextView(MainActivity.this);
-            textView.setLayoutParams(lp);
-            // Center the text vertically
-            textView.setGravity(Gravity.CENTER_VERTICAL | Gravity.LEFT);
-            // Set the text starting position
-            textView.setPadding(36, 0, 0, 0);
-            return textView;
-        }
-        
-        public View getChildView(int groupPosition, int childPosition, boolean isLastChild,
-                View convertView, ViewGroup parent) {
-            View childView = getLayoutInflater().inflate(android.R.layout.simple_expandable_list_item_2, parent, false);
-            ((TextView)childView.findViewById(android.R.id.text1)).setText(getChild(groupPosition, childPosition).toString());
-            return childView;
-        }
-
-        public Object getGroup(int groupPosition) {
-            return groups[groupPosition];
-        }
-
-        public int getGroupCount() {
-            return groups.length;
-        }
-
-        public long getGroupId(int groupPosition) {
-            return groupPosition;
-        }
-
-        public View getGroupView(int groupPosition, boolean isExpanded, View convertView,
-                ViewGroup parent) {
-        	View groupView = getLayoutInflater().inflate(android.R.layout.simple_expandable_list_item_1, parent, false);
-            ((TextView)groupView).setText(getGroup(groupPosition).toString());
-            return groupView;
-        }
-
-        public boolean isChildSelectable(int groupPosition, int childPosition) {
-            return true;
-        }
-
-        public boolean hasStableIds() {
-            return true;
-        }
-
-    }
-
-    public interface OnBackKeyDownListener {
-    	public boolean onBackKeyDown();
-    }
+	private void replacePrimaryFragment(int id, FragmentTransaction ft) {
+		Fragment fragment = null;
+		switch (id) {
+		case TAB_PHOTOS:
+			fragment = new UserPhotosFragment();
+			break;
+		case TAB_PHOTO_LIST:
+			fragment = PhotoListFragment.getInstance();
+			break;
+		case TAB_ARTICLES:
+			fragment = ArticleListFragment.getInstance();
+			break;
+		default:
+			break;
+		}
+		
+		if (mPreviouslySelectedTab != null) {
+			final int oldId = (Integer) mPreviouslySelectedTab.getTag();
+			final int enterAnim = id > oldId ? R.animator.slide_in_right : R.animator.slide_in_left;
+			final int exitAnim = id > oldId ? R.animator.slide_out_left : R.animator.slide_out_right;
+			ft.setCustomAnimations(enterAnim, exitAnim);
+		}
+		
+		ft.replace(R.id.frag_primary, fragment);
+	}
 }
 
     

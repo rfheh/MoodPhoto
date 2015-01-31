@@ -6,18 +6,15 @@
  */ 
 package com.mp.activity;
 
-import com.mp.application.MPApplication;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
-import android.view.View;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.ListView;
 import android.widget.Toast;
+
+import com.mp.application.MPApplication;
 
 /**
  * @Description: 
@@ -27,7 +24,7 @@ import android.widget.Toast;
 
 public abstract class BaseActionBarActivity extends ActionBarActivity {
 
-protected FragmentManager mFm;
+	protected FragmentManager mFm;
 	
 	@Override
 	protected void onCreate(Bundle arg0) {
@@ -96,27 +93,6 @@ protected FragmentManager mFm;
 	
 	public FragmentTransaction removeFragment(Fragment arg0) {
 		return mFm.beginTransaction().remove(arg0);
-	}
-	
-	/**
-	 * 重设ListView高度
-	 * @param listView
-	 */
-	public void resetListViewHeight(ListView listView) {
-		if (listView.getAdapter() == null)
-			return;
-
-		int totalHeight = 0;
-		for (int i = 0; i < listView.getAdapter().getCount(); i++) {
-			View item = listView.getAdapter().getView(i, null, listView);
-			item.measure(0, 0);
-			totalHeight += item.getMeasuredHeight();
-		}
-
-		LayoutParams params = listView.getLayoutParams();
-		params.height = totalHeight
-				+ (listView.getDividerHeight() * listView.getCount() - 1);
-		listView.setLayoutParams(params);
 	}
 	
 	/**

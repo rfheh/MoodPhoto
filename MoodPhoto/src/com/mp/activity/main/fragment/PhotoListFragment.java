@@ -30,7 +30,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.mp.R;
-import com.mp.activity.main.MainActivity.OnBackKeyDownListener;
 import com.mp.adapter.CommonAdapter;
 import com.mp.common.AsyncTask;
 import com.mp.common.ZoomImageFromThumbWorker;
@@ -53,7 +52,7 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
  * @Since:2014-8-27
  */
 
-public class PhotoListFragment extends Fragment implements OnItemClickListener, OnBackKeyDownListener {
+public class PhotoListFragment extends Fragment implements OnItemClickListener {
 
 	private static PhotoListFragment mFragment;
 	
@@ -140,7 +139,7 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener, 
 			}
 		});
 		
-		expandededParentView = content.findViewById(R.id.listContainer);
+		expandededParentView = mListContainerLayout;
 		expandededView = content.findViewById(R.id.rl_expended);
 		expendedIv = (ImageView) content.findViewById(R.id.iv_expanded);
 		
@@ -176,15 +175,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener, 
 	}
 	
 	@Override
-	public boolean onBackKeyDown() {
-		if (mZoomImageFromThumbWorker != null && mZoomImageFromThumbWorker.hasExpanded()) {
-			mZoomImageFromThumbWorker.closeImageToThumb();
-			return true;
-		}
-		return false;
-	}
-	
-	@Override
 	public void onResume() {
 		
 		super.onResume();
@@ -208,7 +198,10 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener, 
 		super.onDestroy();
 		ImageLoader.getInstance().clearMemoryCache();
 		ImageLoader.getInstance().clearDiskCache();
-		//mImageFatcher.closeCache();
+		if (mZoomImageFromThumbWorker != null) {
+			mZoomImageFromThumbWorker.closeImageToThumb();
+		}
+		//mImageFatcher.closeCache(); 
 	}
 	
 	//true加载中  false加载完成

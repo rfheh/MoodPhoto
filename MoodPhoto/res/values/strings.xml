@@ -6,4 +6,8 @@
 	<string name="loading">正在加载，稍等一下呗！</string>
 	<string name="empty">Σ(っ °Д °;)っ \n “没有加载到任何东西 ” \n Σ( ° △ °|||)︴</string>
 	<string name="to_write_hint">写下你的想法吧！</string>
+	
+	<string name="tab_photos">图册</string>
+	<string name="tab_photo_list">列表</string>
+	<string name="tab_articles">文字</string>
 </resources>
