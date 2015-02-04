@@ -3,6 +3,7 @@ package com.mp.activity.main.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.etsy.android.grid.StaggeredGridView;
 import com.mp.R;
 import com.mp.constant.PreferenceConstants;
 import com.mp.entity.MediaStoreBucket;
@@ -42,7 +43,7 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 	private SharedPreferences mPrefs;
 	private UserPhotosCursorAdapter mPhotoAdapter;
 	private ArrayAdapter<MediaStoreBucket> mBucketAdapter;
-	private ListView mPhotoListView;
+	private StaggeredGridView mPhotosSGV;
 	private Spinner mBucketSpinner;
 	
 	private List<MediaStoreBucket> mBuckets = new ArrayList<MediaStoreBucket>();
@@ -62,11 +63,11 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.layout_list_content, container, false);
+		View view = inflater.inflate(R.layout.layout_grid_content, container, false);
 		
-		mPhotoListView = (ListView) view.findViewById(android.R.id.list);
-		mPhotoListView.setAdapter(mPhotoAdapter);
-		mPhotoListView.setOnItemClickListener(this);
+		mPhotosSGV = (StaggeredGridView) view.findViewById(R.id.sgv);
+		mPhotosSGV.setAdapter(mPhotoAdapter);
+		mPhotosSGV.setOnItemClickListener(this);
 		
 		mBucketSpinner = (Spinner) view.findViewById(R.id.sp_buckets);
 		mBucketSpinner.setOnItemSelectedListener(this);
@@ -168,7 +169,7 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 		switch (arg0.getId()) {
 		case LOADER_USER_PHOTOS_EXTERNAL:
 			mPhotoAdapter.swapCursor(arg1);
-			mPhotoListView.setSelection(0);
+			mPhotosSGV.setSelection(0);
 			break;
 
 		default:

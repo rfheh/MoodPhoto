@@ -9,7 +9,6 @@ package com.mp.activity.main;
 
 import java.util.ArrayList;
 
-import android.R.integer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -20,7 +19,6 @@ import android.view.KeyEvent;
 
 import com.mp.R;
 import com.mp.activity.BaseActionBarActivity;
-import com.mp.activity.article.fragment.ArticleDetailFragment;
 import com.mp.activity.main.fragment.ArticleListFragment;
 import com.mp.activity.main.fragment.PhotoListFragment;
 import com.mp.activity.main.fragment.UserPhotosFragment;

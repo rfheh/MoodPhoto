@@ -3,19 +3,17 @@ package com.mp.activity.main.fragment;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v4.widget.ResourceCursorAdapter;
+import android.util.SparseBooleanArray;
 import android.view.View;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.DecelerateInterpolator;
 
+import com.etsy.android.grid.util.DynamicHeightImageView;
 import com.mp.R;
-import com.mp.util.BitmapUtil;
 import com.mp.util.MediaStoreCursorHelper;
-import com.mp.util.WindowScreenUtil;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.assist.LoadedFrom;
@@ -24,12 +22,21 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
 public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 
-	private Typeface mTypeface;
 	DisplayImageOptions mOptions;
+	SparseBooleanArray mPositionSparse;
+	int mPreviousPosition, mCurrentPosition;
+	long mAnimDuration;
+	Integer[] mColors;
+	int mNextColor = 0;
 	
 	public UserPhotosCursorAdapter(final Context context, Cursor c) {
-		super(context, R.layout.layout_photo_list_item, c, 0);
-		mTypeface = Typeface.createFromAsset(context.getAssets(), "fonts/00TT.TTF"); 
+		super(context, R.layout.layout_photo_grid_item, c, 0);
+		
+		if (c != null) {
+			mPositionSparse = new SparseBooleanArray(c.getCount());
+		}
+		mPreviousPosition = -1;
+		mCurrentPosition = -1;
 		mOptions = new DisplayImageOptions.Builder()
 		.showImageOnLoading(R.drawable.empty_photo)
 		.cacheInMemory(true)
@@ -40,34 +47,72 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 			@Override
 			public void display(Bitmap bitmap, ImageAware imageAware,
 					LoadedFrom loadedFrom) {
-				float scale = (float)WindowScreenUtil.getScreenWidth(context) / WindowScreenUtil.getScreenHeight(context) * 3;
-				imageAware.setImageBitmap(BitmapUtil.cutMatrixBitmap(bitmap, scale));
+				if (!imageAware.isCollected() && imageAware.getWrappedView() instanceof DynamicHeightImageView) {
+					//Log.e("BitmapDisplayer", "imageAware.getWrappedView() -- > DynamicHeightImageView ");
+				}
+				imageAware.setImageBitmap(bitmap);
 			}
 			
 		})
 		.build();
+		
+		mColors = new Integer[]{R.color.deep_blue_14, R.color.deep_green_14, R.color.deep_purple_9
+				, R.color.deep_red_14, R.color.deep_yellow_14};
+	}
+	
+	@Override
+	public Cursor swapCursor(Cursor newCursor) {
+		System.out.println("swapCursor");
+		if (newCursor != null) {			
+			mPositionSparse = new SparseBooleanArray(newCursor.getCount());
+		}
+		mPreviousPosition = -1;
+		mCurrentPosition = -1;
+		return super.swapCursor(newCursor);
+		
 	}
 
 	@Override
-	public void bindView(View arg0, Context arg1, Cursor arg2) {
-		int h = WindowScreenUtil.getScreenHeight(mContext) / 3;
-		ImageView photoIv = (ImageView) arg0.findViewById(R.id.iv_photo);
-		ImageView markIv = (ImageView) arg0.findViewById(R.id.iv_mark);
-		TextView dateTv = (TextView) arg0.findViewById(R.id.tv_date);
-		photoIv.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, h));
-		FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) markIv.getLayoutParams();
-		int dime = (int)arg1.getResources().getDimension(R.dimen.image_header_size);
-		if(lp == null) lp = new FrameLayout.LayoutParams(dime, dime);
-		lp.setMargins(arg1.getResources().getDimensionPixelOffset(R.dimen.ui_element_spacing), -dime/2, 0, 0);
-		markIv.setLayoutParams(lp);
-		dateTv.setTypeface(mTypeface);
+	public View getView(int arg0, View arg1, ViewGroup arg2) {
 		
-		markIv.setImageResource(R.drawable.icon_heart_blue);
+		mCurrentPosition = arg0;
+		return super.getView(arg0, arg1, arg2);
+		
+	}
+	
+	@Override
+	public void bindView(View arg0, Context arg1, Cursor arg2) {
+		
+		startViewAnimation(arg0, mCurrentPosition);
+		
+		DynamicHeightImageView photoIv = (DynamicHeightImageView) arg0.findViewById(R.id.iv_photo);
+		arg0.setBackgroundResource(mColors[mNextColor]);
+		mNextColor++;
+		mNextColor = mNextColor >= mColors.length ? 0 : mNextColor;
+		
 		Uri uri = MediaStoreCursorHelper.photosCursorToSelection(MediaStoreCursorHelper.MEDIA_STORE_CONTENT_URI, arg2);
-		dateTv.setText(uri == null ? null : uri.toString());
 		if (uri != null) {			
 			ImageLoader.getInstance().displayImage(Uri.decode(uri.toString()), photoIv, mOptions);
 		}
 	}
+	
+	
 
+	private void startViewAnimation(View view, int position) {
+		if ((view != null) && (!mPositionSparse.get(position)) && (mCurrentPosition > mPreviousPosition)) {
+			mAnimDuration = 1000L;
+			mPreviousPosition = position;
+			view.setTranslationX(0.0F);
+			WindowManager localWindowManager = (WindowManager)mContext.getSystemService("window");
+		    int height = localWindowManager.getDefaultDisplay().getHeight();
+			view.setTranslationY(height);
+			view.setRotationX(45.0F);
+			view.setScaleX(0.7F);
+			view.setScaleY(0.55F);
+			view.animate().rotationX(0.0F).rotationY(0.0F).translationX(0.0F).translationY(0.0F).
+				setDuration(mAnimDuration).scaleX(1.0F).scaleY(1.0F).setInterpolator(new DecelerateInterpolator()).
+				setStartDelay(0L).start();
+		    mPositionSparse.put(position, true);
+		}
+	}
 }
