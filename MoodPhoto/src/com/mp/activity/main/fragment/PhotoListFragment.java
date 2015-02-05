@@ -54,8 +54,6 @@ import com.nostra13.universalimageloader.core.imageaware.ImageAware;
 
 public class PhotoListFragment extends Fragment implements OnItemClickListener {
 
-	private static PhotoListFragment mFragment;
-	
 	View mProgressContainerLayout, mListContainerLayout, mEmptyTv, expandededParentView, expandededView;
 	ListView mListView;
 	ImageView expendedIv;
@@ -68,10 +66,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 	
 	//DiskImageFatcher mImageFatcher;
 	//ImageCacheParams mCacheParams;
-	
-	public static PhotoListFragment getInstance() {
-		return mFragment == null ? new PhotoListFragment() : mFragment;
-	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

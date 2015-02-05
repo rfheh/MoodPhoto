@@ -41,15 +41,10 @@ import com.mp.entity.MoodArticle;
 
 public class ArticleListFragment extends Fragment implements OnItemClickListener {
 
-	private static ArticleListFragment mFragment;
 	
 	View mProgressContainerLayout, mListContainerLayout, mEmptyTv;
 	ListView mListView;
 	CommonAdapter<MoodArticle> mAdapter;
-	
-	public static ArticleListFragment getInstance() {
-		return mFragment == null ? new ArticleListFragment() : mFragment;
-	}
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {

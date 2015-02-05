@@ -3,16 +3,6 @@ package com.mp.activity.main.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.etsy.android.grid.StaggeredGridView;
-import com.mp.R;
-import com.mp.constant.PreferenceConstants;
-import com.mp.entity.MediaStoreBucket;
-import com.mp.task.MediaStoreBucketAsyncTask;
-import com.mp.task.MediaStoreBucketAsyncTask.MediaStoreBucketsResultListener;
-import com.mp.util.MediaStoreCursorHelper;
-import com.mp.util.ViewUtil;
-import com.nostra13.universalimageloader.core.ImageLoader;
-
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.MediaScannerConnection.OnScanCompletedListener;
@@ -27,12 +17,22 @@ import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
+
+import com.etsy.android.grid.StaggeredGridView;
+import com.mp.R;
+import com.mp.constant.PreferenceConstants;
+import com.mp.entity.MediaStoreBucket;
+import com.mp.task.MediaStoreBucketAsyncTask;
+import com.mp.task.MediaStoreBucketAsyncTask.MediaStoreBucketsResultListener;
+import com.mp.util.MediaStoreCursorHelper;
+import com.mp.util.OS_BuildUtil;
+import com.mp.util.ViewUtil;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 			OnItemSelectedListener, MediaStoreBucketsResultListener, LoaderCallbacks<Cursor>,
@@ -45,6 +45,7 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 	private ArrayAdapter<MediaStoreBucket> mBucketAdapter;
 	private StaggeredGridView mPhotosSGV;
 	private Spinner mBucketSpinner;
+	private SpeedScrollListener mScrollListener;
 	
 	private List<MediaStoreBucket> mBuckets = new ArrayList<MediaStoreBucket>();
 	
@@ -55,7 +56,10 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 		
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		
-		mPhotoAdapter = new UserPhotosCursorAdapter(getActivity(), null);
+		mScrollListener = new SpeedScrollListener();
+		
+		mPhotoAdapter = new UserPhotosCursorAdapter(getActivity(), null, 
+				OS_BuildUtil.isApi14_IceCreamSandwichOrLater(), mScrollListener);
 		mBucketAdapter = new ArrayAdapter<MediaStoreBucket>(getActivity(), ViewUtil.getSpinnerItemResId(), mBuckets);
 		mBucketAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	}
@@ -68,6 +72,7 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 		mPhotosSGV = (StaggeredGridView) view.findViewById(R.id.sgv);
 		mPhotosSGV.setAdapter(mPhotoAdapter);
 		mPhotosSGV.setOnItemClickListener(this);
+		mPhotosSGV.setOnScrollListener(mScrollListener);
 		
 		mBucketSpinner = (Spinner) view.findViewById(R.id.sp_buckets);
 		mBucketSpinner.setOnItemSelectedListener(this);
@@ -96,15 +101,14 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 	public void onPause() {
 		
 		super.onPause();
-		ImageLoader.getInstance().stop();
+		ImageLoader.getInstance().pause();
 	}
 	
 	@Override
 	public void onDestroy() {
 		
 		super.onDestroy();
-		ImageLoader.getInstance().clearMemoryCache();
-		ImageLoader.getInstance().clearDiskCache();
+		ImageLoader.getInstance().stop();
 	}
 	
 	@Override

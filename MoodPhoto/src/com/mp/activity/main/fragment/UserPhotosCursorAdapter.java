@@ -28,8 +28,11 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 	long mAnimDuration;
 	Integer[] mColors;
 	int mNextColor = 0;
+	boolean mEnableAnim;
+	SpeedScrollListener mScrollListener;
 	
-	public UserPhotosCursorAdapter(final Context context, Cursor c) {
+	public UserPhotosCursorAdapter(final Context context, Cursor c, boolean enableAnim,
+			SpeedScrollListener speedScrollListener) {
 		super(context, R.layout.layout_photo_grid_item, c, 0);
 		
 		if (c != null) {
@@ -37,6 +40,8 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 		}
 		mPreviousPosition = -1;
 		mCurrentPosition = -1;
+		mEnableAnim = enableAnim;
+		mScrollListener = speedScrollListener;
 		mOptions = new DisplayImageOptions.Builder()
 		.showImageOnLoading(R.drawable.empty_photo)
 		.cacheInMemory(true)
@@ -62,7 +67,6 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 	
 	@Override
 	public Cursor swapCursor(Cursor newCursor) {
-		System.out.println("swapCursor");
 		if (newCursor != null) {			
 			mPositionSparse = new SparseBooleanArray(newCursor.getCount());
 		}
@@ -83,8 +87,6 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 	@Override
 	public void bindView(View arg0, Context arg1, Cursor arg2) {
 		
-		startViewAnimation(arg0, mCurrentPosition);
-		
 		DynamicHeightImageView photoIv = (DynamicHeightImageView) arg0.findViewById(R.id.iv_photo);
 		arg0.setBackgroundResource(mColors[mNextColor]);
 		mNextColor++;
@@ -94,14 +96,23 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 		if (uri != null) {			
 			ImageLoader.getInstance().displayImage(Uri.decode(uri.toString()), photoIv, mOptions);
 		}
-	}
-	
-	
 
-	private void startViewAnimation(View view, int position) {
-		if ((view != null) && (!mPositionSparse.get(position)) && (mCurrentPosition > mPreviousPosition)) {
-			mAnimDuration = 1000L;
-			mPreviousPosition = position;
+		if (mEnableAnim) {			
+			startViewAnimation(arg0);
+		}
+		
+	}
+
+	@SuppressWarnings("deprecation")
+	private void startViewAnimation(View view) {
+		
+		double speed = mScrollListener.getSpeed();
+		
+		if ((view != null) && (!mPositionSparse.get(mCurrentPosition)) && 
+				(mCurrentPosition > mPreviousPosition) && (int)speed != 0) {
+			mAnimDuration = (long) (15000D * (1D / speed));
+			mAnimDuration = mAnimDuration > 1000L ? 1000L : mAnimDuration;
+			mPreviousPosition = mCurrentPosition;
 			view.setTranslationX(0.0F);
 			WindowManager localWindowManager = (WindowManager)mContext.getSystemService("window");
 		    int height = localWindowManager.getDefaultDisplay().getHeight();
@@ -112,7 +123,7 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 			view.animate().rotationX(0.0F).rotationY(0.0F).translationX(0.0F).translationY(0.0F).
 				setDuration(mAnimDuration).scaleX(1.0F).scaleY(1.0F).setInterpolator(new DecelerateInterpolator()).
 				setStartDelay(0L).start();
-		    mPositionSparse.put(position, true);
+		    mPositionSparse.put(mCurrentPosition, true);
 		}
 	}
 }

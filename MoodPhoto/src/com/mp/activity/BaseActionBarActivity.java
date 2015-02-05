@@ -32,6 +32,7 @@ public abstract class BaseActionBarActivity extends ActionBarActivity {
 		super.onCreate(arg0);
 		
 		mFm = getSupportFragmentManager();
+		
 	}
 	
 	@Override

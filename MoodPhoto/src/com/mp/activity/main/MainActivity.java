@@ -7,7 +7,11 @@
  */ 
 package com.mp.activity.main;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -23,6 +27,7 @@ import com.mp.activity.main.fragment.ArticleListFragment;
 import com.mp.activity.main.fragment.PhotoListFragment;
 import com.mp.activity.main.fragment.UserPhotosFragment;
 import com.mp.entity.MoodArticle;
+import com.nostra13.universalimageloader.core.ImageLoader;
 
 /**
  * @Description: 
@@ -40,6 +45,7 @@ public class MainActivity extends BaseActionBarActivity implements TabListener {
 	
 	
 	ArrayList<MoodArticle> mPhotoItems;
+	Map<String, WeakReference<Fragment>> mFragments;
 	Tab mPreviouslySelectedTab;
 	
 	@SuppressWarnings("unchecked")
@@ -53,6 +59,8 @@ public class MainActivity extends BaseActionBarActivity implements TabListener {
 		}
 		
 		setContentView(R.layout.activity_main_images);  
+		
+		mFragments = new HashMap<String, WeakReference<Fragment>>();
 		
 		ActionBar ab = getSupportActionBar();
 		ab.setDisplayShowTitleEnabled(false);
@@ -68,6 +76,29 @@ public class MainActivity extends BaseActionBarActivity implements TabListener {
 	protected void onResume() {
 		
 		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		
+		super.onPause();
+		ImageLoader.getInstance().pause();
+		
+	}
+	
+	@Override
+	protected void onStop() {
+		
+		super.onStop();
+		ImageLoader.getInstance().stop();
+		
+	}
+	
+	@Override
+	protected void onDestroy() {
+		
+		super.onDestroy();
+		ImageLoader.getInstance().destroy();
 	}
 	
 	@Override
@@ -105,15 +136,46 @@ public class MainActivity extends BaseActionBarActivity implements TabListener {
 
 	private void replacePrimaryFragment(int id, FragmentTransaction ft) {
 		Fragment fragment = null;
+		String fragmentTag = null;
+		WeakReference<Fragment> weakReference = null;
+		
 		switch (id) {
 		case TAB_PHOTOS:
-			fragment = new UserPhotosFragment();
+			fragmentTag = UserPhotosFragment.class.getSimpleName();
+			weakReference = mFragments.get(fragmentTag);
+			if (weakReference != null) {				
+				fragment = weakReference.get();
+			}
+			if (fragment == null) {
+				System.out.println("Use the new Fragment:" + fragmentTag);
+				fragment = new UserPhotosFragment();
+				mFragments.put(fragmentTag, new WeakReference<Fragment>(fragment));
+			}
+			
 			break;
 		case TAB_PHOTO_LIST:
-			fragment = PhotoListFragment.getInstance();
+			fragmentTag = PhotoListFragment.class.getSimpleName();
+			weakReference = mFragments.get(fragmentTag);
+			if (weakReference != null) {				
+				fragment = weakReference.get();
+			}
+			if (fragment == null) {
+				System.out.println("Use the new Fragment:" + fragmentTag);
+				fragment = new PhotoListFragment();
+				mFragments.put(fragmentTag, new WeakReference<Fragment>(fragment));
+			}
 			break;
 		case TAB_ARTICLES:
-			fragment = ArticleListFragment.getInstance();
+			fragmentTag = ArticleListFragment.class.getSimpleName();
+			weakReference = mFragments.get(fragmentTag);
+			if (weakReference != null) {				
+				fragment = weakReference.get();
+			}
+			if (fragment == null) {
+				System.out.println("Use the new Fragment:" + fragmentTag);
+				fragment = new ArticleListFragment();
+				mFragments.put(fragmentTag, new WeakReference<Fragment>(fragment));
+			}
 			break;
 		default:
 			break;

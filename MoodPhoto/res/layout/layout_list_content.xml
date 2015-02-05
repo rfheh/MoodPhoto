@@ -35,7 +35,7 @@
         <RelativeLayout 
             android:id="@+id/rl_expended"
             style="@style/MatchParent"
-            android:visibility="invisible">
+            android:visibility="gone">
             
 	        <com.mp.common.view.BlindsImageView 
 	            android:id="@+id/iv_expanded"
