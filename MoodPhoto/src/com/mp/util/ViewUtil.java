@@ -1,5 +1,8 @@
 package com.mp.util;
 
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.Canvas;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.view.View;
@@ -35,5 +38,17 @@ public class ViewUtil {
 		params.height = totalHeight
 				+ (listView.getDividerHeight() * listView.getCount() - 1);
 		listView.setLayoutParams(params);
+	}
+	
+	/**
+	 * View转换成Bitmap
+	 * @param view
+	 * @return
+	 */
+	public static Bitmap drawViewOntoBitmap(View view) {
+		Bitmap image = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Config.RGB_565);
+		Canvas canvas = new Canvas(image);
+		view.draw(canvas);
+		return image;
 	}
 }

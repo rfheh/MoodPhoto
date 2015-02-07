@@ -64,9 +64,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 	
 	ZoomImageFromThumbWorker mZoomImageFromThumbWorker;
 	
-	//DiskImageFatcher mImageFatcher;
-	//ImageCacheParams mCacheParams;
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		
@@ -91,17 +88,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 				})
 				.build();
 		
-		
-		/*mCacheParams = new ImageCacheParams(getActivity());
-		mCacheParams.setMemCacheSizePercent(0.5f); // Set memory cache to 50% of app memory
-		
-		int imageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
-		mImageFatcher = new DiskImageFatcher(getActivity(), imageThumbSize, imageThumbSize);
-		mImageFatcher.setLoadingImage(R.drawable.empty_photo);
-		mImageFatcher.addImageCache(getActivity().getSupportFragmentManager(), mCacheParams);
-		*/
-		
-		
 	}
 	
 	@Override
@@ -124,7 +110,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 					ImageLoader.getInstance().pause();
 				else 
 					ImageLoader.getInstance().resume();
-				//mImageFatcher.setPauseWork(scrollState == SCROLL_STATE_FLING);
 			}
 			
 			@Override
@@ -150,9 +135,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		/*Intent intent = BaseActivity.newIntent(MoodArticleActivity.class);
-		intent.putExtra(MoodArticle.class.getSimpleName(), (MoodArticle)parent.getItemAtPosition(position));
-		startActivity(intent);*/
 		MoodArticle moodArticle = (MoodArticle) parent.getItemAtPosition(position);
 		mReadCountTv.setText(moodArticle.getReadTimes() + "");
 		mArticleTv.setText(ArticleText.getRadionArticle());
@@ -165,7 +147,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 			mZoomImageFromThumbWorker.resetImageUri(thumbView, moodArticle.getUri());
 		}
 		mZoomImageFromThumbWorker.expandedImageFromThumb();
-		//ZoomImageFromThumbWorker.zoomImageFromThumb(thumbView, expendedIv, expandededView, expandededParentView, moodArticle.getUri());
 	}
 	
 	@Override
@@ -173,7 +154,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 		
 		super.onResume();
 		ImageLoader.getInstance().resume();
-		//mImageFatcher.setExitTasksEarly(false);
 
 	}
 	
@@ -182,8 +162,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 		
 		super.onPause();
 		ImageLoader.getInstance().stop();
-		//mImageFatcher.setExitTasksEarly(true);
-		//mImageFatcher.flushCache();
 	}
 	
 	@Override
@@ -195,7 +173,6 @@ public class PhotoListFragment extends Fragment implements OnItemClickListener {
 		if (mZoomImageFromThumbWorker != null) {
 			mZoomImageFromThumbWorker.closeImageToThumb();
 		}
-		//mImageFatcher.closeCache(); 
 	}
 	
 	//true加载中  false加载完成

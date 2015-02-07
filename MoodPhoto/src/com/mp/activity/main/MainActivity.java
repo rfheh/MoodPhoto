@@ -10,7 +10,6 @@ package com.mp.activity.main;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import android.os.Bundle;
@@ -28,6 +27,7 @@ import com.mp.activity.main.fragment.PhotoListFragment;
 import com.mp.activity.main.fragment.UserPhotosFragment;
 import com.mp.entity.MoodArticle;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 /**
  * @Description: 
@@ -62,8 +62,11 @@ public class MainActivity extends BaseActionBarActivity implements TabListener {
 		
 		mFragments = new HashMap<String, WeakReference<Fragment>>();
 		
+		ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(this));
+		
 		ActionBar ab = getSupportActionBar();
 		ab.setDisplayShowTitleEnabled(false);
+		ab.setDisplayShowHomeEnabled(false);
 		ab.setNavigationMode(ab.getNavigationMode() == ActionBar.NAVIGATION_MODE_STANDARD
             ? ActionBar.NAVIGATION_MODE_TABS : ActionBar.NAVIGATION_MODE_STANDARD);
 		ab.addTab(ab.newTab().setText(R.string.tab_photos).setTag(TAB_PHOTOS).setTabListener(this));
@@ -76,6 +79,7 @@ public class MainActivity extends BaseActionBarActivity implements TabListener {
 	protected void onResume() {
 		
 		super.onResume();
+		
 	}
 	
 	@Override
@@ -99,6 +103,9 @@ public class MainActivity extends BaseActionBarActivity implements TabListener {
 		
 		super.onDestroy();
 		ImageLoader.getInstance().destroy();
+		if (mFragments != null && !mFragments.isEmpty()) {
+			mFragments.clear();
+		}
 	}
 	
 	@Override

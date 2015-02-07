@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- the theme applied to the application or activity -->
+    <style name="ActionBarTheme"
+           parent="@style/Theme.AppCompat.Light">
+        <item name="android:actionBarStyle">@style/MyActionBar</item>
+        <item name="android:actionBarTabTextStyle">@style/TabTextStyle</item>
+        <item name="android:actionMenuTextColor">?android:attr/textColorPrimaryInverse</item>
+
+        <!-- Support library compatibility -->
+        <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="actionBarTabTextStyle">@style/TabTextStyle</item>
+        <item name="actionMenuTextColor">?android:attr/textColorPrimaryInverse</item>
+    </style>
+
+    <!-- general styles for the action bar -->
+    <style name="MyActionBar"
+           parent="@style/Widget.AppCompat.Light.ActionBar.Solid">
+        <!-- <item name="android:titleTextStyle">@style/TitleTextStyle</item>
+        <item name="android:background">@drawable/ab_solid_dark_holo</item>ab_solid_dark_holo
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_dark_holo</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_inverse_holo</item> -->
+        <item name="android:alpha">1.0</item>
+
+        <!-- Support library compatibility -->
+        <!-- <item name="titleTextStyle">@style/TitleTextStyle</item>
+        <item name="background">@drawable/ab_solid_dark_holo</item>
+        <item name="backgroundStacked">@drawable/ab_stacked_solid_dark_holo</item>
+        <item name="backgroundSplit">@drawable/ab_bottom_solid_inverse_holo</item> -->
+    </style>
+
+    <!-- action bar title text -->
+    <style name="TitleTextStyle"
+           parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:style/TextAppearance.Holo.Widget.ActionBar.Title.Inverse</item>
+    </style>
+
+    <!-- action bar tab text -->
+    <style name="TabTextStyle"
+           parent="@style/Widget.AppCompat.ActionBar.TabText">
+        <!-- <item name="android:textColor">?android:attr/textColorPrimaryInverse</item> -->
+    </style>
+    
+    <style name="ActionBarTheme.FullScreenOverlay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <!-- <item name="android:actionBarStyle">@style/photup_translucent_ActionBar</item> -->
+        
+        <!-- Support library compatibility -->
+        <item name="windowActionBarOverlay">true</item>
+        <!-- <item name="actionBarStyle">@style/photup_translucent_ActionBar</item> -->
+    </style>
+</resources>

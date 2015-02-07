@@ -3,6 +3,7 @@ package com.mp.activity.main.fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.MediaScannerConnection.OnScanCompletedListener;
@@ -10,6 +11,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.MediaStore.Images;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.CursorLoader;
@@ -25,6 +28,7 @@ import android.widget.Spinner;
 
 import com.etsy.android.grid.StaggeredGridView;
 import com.mp.R;
+import com.mp.activity.photo.PhotoViewerActivity;
 import com.mp.constant.PreferenceConstants;
 import com.mp.entity.MediaStoreBucket;
 import com.mp.task.MediaStoreBucketAsyncTask;
@@ -33,6 +37,7 @@ import com.mp.util.MediaStoreCursorHelper;
 import com.mp.util.OS_BuildUtil;
 import com.mp.util.ViewUtil;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 			OnItemSelectedListener, MediaStoreBucketsResultListener, LoaderCallbacks<Cursor>,
@@ -53,8 +58,10 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 	public void onCreate(Bundle savedInstanceState) {
 		
 		super.onCreate(savedInstanceState);
-		
+		System.out.println("UserPhotosFragment:onCreate");
 		mPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		
+		ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(getActivity()));
 		
 		mScrollListener = new SpeedScrollListener();
 		
@@ -67,6 +74,7 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		System.out.println("UserPhotosFragment:onCreateView");
 		View view = inflater.inflate(R.layout.layout_grid_content, container, false);
 		
 		mPhotosSGV = (StaggeredGridView) view.findViewById(R.id.sgv);
@@ -77,7 +85,6 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 		mBucketSpinner = (Spinner) view.findViewById(R.id.sp_buckets);
 		mBucketSpinner.setOnItemSelectedListener(this);
 		mBucketSpinner.setAdapter(mBucketAdapter);
-		mBucketSpinner.setVisibility(View.VISIBLE);
 		
 		return view;
 		
@@ -85,40 +92,55 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 	
 	@Override
 	public void onStart() {
-		
+
+		System.out.println("UserPhotosFragment:onStart");
 		super.onStart();
 		MediaStoreBucketAsyncTask.excute(getActivity(), this);
 	}
 	
 	@Override
 	public void onResume() {
-		
+
+		System.out.println("UserPhotosFragment:onResume");
 		super.onResume();
 		ImageLoader.getInstance().resume();
+		
 	}
 	
 	@Override
 	public void onPause() {
-		
+
+		System.out.println("UserPhotosFragment:onPause");
 		super.onPause();
 		ImageLoader.getInstance().pause();
 	}
 	
 	@Override
 	public void onDestroy() {
-		
+
+		System.out.println("UserPhotosFragment:onDestroy");
 		super.onDestroy();
-		ImageLoader.getInstance().stop();
+		saveSelectedBucketToPrefs();
 	}
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
+		Bundle bundle = null;
+		if (OS_BuildUtil.isApi16_JellyBeanOrLater()) {
+			ActivityOptionsCompat options = ActivityOptionsCompat.
+					makeThumbnailScaleUpAnimation(view, ViewUtil.drawViewOntoBitmap(view), 0, 0);
+			bundle = options.toBundle();
+		}
+		
+		Intent intent = new Intent(getActivity(), PhotoViewerActivity.class);
+		ActivityCompat.startActivity(getActivity(), intent, bundle);
 	}
 	
 	@Override
 	public void onItemSelected(AdapterView<?> parent, View view, int position,
 			long id) {
+		System.out.println("UserPhotosFragment:onItemSelected");
 		MediaStoreBucket item = (MediaStoreBucket) parent.getItemAtPosition(position);
 		if (null != item) {
 			loadBucketId(item.getId());
@@ -212,10 +234,20 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 			// If we have a new position, then just set it. If it's our current
             // position, then call onItemSelected manually
 			if (newSelection != mBucketSpinner.getSelectedItemPosition()) {
+				System.out.println("setSelectedBucketFromPrefs:newSelection");
 				mBucketSpinner.setSelection(newSelection);
 			} else {
+				System.out.println("setSelectedBucketFromPrefs:onItemSelected");
 				onItemSelected(mBucketSpinner, null, newSelection, 0);
 			}
+		}
+	}
+	
+	private void saveSelectedBucketToPrefs() {
+		MediaStoreBucket bucket = getSelectedBucket();
+		if (null != bucket && null != mPrefs) {
+			mPrefs.edit().putString(PreferenceConstants.PREF_SELECTED_MEDIA_BUCKET_ID, 
+					bucket.getId()).commit();
 		}
 	}
 	
@@ -229,4 +261,10 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 		}
 	}
 
+	private MediaStoreBucket getSelectedBucket() {
+		if (null != mBucketSpinner) {
+			return (MediaStoreBucket) mBucketSpinner.getSelectedItem();
+		}
+		return null;
+	}
 }

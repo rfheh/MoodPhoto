@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fl_root"
+    style="@style/MatchParent" >
+    
+	<android.support.v4.view.ViewPager
+	    android:id="@+id/vp_photos"
+	    style="@style/MatchParent"/>
+</FrameLayout>

@@ -10,4 +10,10 @@
 	<string name="tab_photos">图册</string>
 	<string name="tab_photo_list">列表</string>
 	<string name="tab_articles">文字</string>
+	
+	<string name="photo_effects">Effects</string>
+    <string name="photo_caption">Caption</string>
+    <string name="photo_rotate">Rotate</string>
+    <string name="photo_crop">Crop</string>
+    <string name="photo_place">Place</string>
 </resources>
