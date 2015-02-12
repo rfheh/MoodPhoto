@@ -3,6 +3,7 @@ package com.mp.activity.main.fragment;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.net.Uri;
 import android.support.v4.widget.ResourceCursorAdapter;
 import android.util.SparseBooleanArray;
@@ -103,7 +104,6 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 		
 	}
 
-	@SuppressWarnings("deprecation")
 	private void startViewAnimation(View view) {
 		
 		double speed = mScrollListener.getSpeed();
@@ -115,7 +115,9 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 			mPreviousPosition = mCurrentPosition;
 			view.setTranslationX(0.0F);
 			WindowManager localWindowManager = (WindowManager)mContext.getSystemService("window");
-		    int height = localWindowManager.getDefaultDisplay().getHeight();
+			Point point = new Point();
+			localWindowManager.getDefaultDisplay().getSize(point);
+		    int height = point.y;
 			view.setTranslationY(height);
 			view.setRotationX(45.0F);
 			view.setScaleX(0.7F);

@@ -86,6 +86,8 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 		mBucketSpinner.setOnItemSelectedListener(this);
 		mBucketSpinner.setAdapter(mBucketAdapter);
 		
+		MediaStoreBucketAsyncTask.excute(getActivity(), this);
+		
 		return view;
 		
 	}
@@ -95,7 +97,6 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 
 		System.out.println("UserPhotosFragment:onStart");
 		super.onStart();
-		MediaStoreBucketAsyncTask.excute(getActivity(), this);
 	}
 	
 	@Override
