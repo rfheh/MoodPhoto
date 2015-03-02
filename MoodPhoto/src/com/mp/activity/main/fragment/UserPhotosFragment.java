@@ -135,6 +135,11 @@ public class UserPhotosFragment extends Fragment implements OnItemClickListener,
 		}
 		
 		Intent intent = new Intent(getActivity(), PhotoViewerActivity.class);
+		
+		intent.putExtra(PhotoViewerActivity.EXTRA_POSITION, position);
+		MediaStoreBucket bucket = (MediaStoreBucket) mBucketSpinner.getSelectedItem();
+		intent.putExtra(PhotoViewerActivity.EXTRA_BUCKET_ID, bucket.getId());
+		
 		ActivityCompat.startActivity(getActivity(), intent, bundle);
 	}
 	

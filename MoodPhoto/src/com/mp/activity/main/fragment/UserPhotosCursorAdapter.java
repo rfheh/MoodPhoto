@@ -46,7 +46,7 @@ public class UserPhotosCursorAdapter extends ResourceCursorAdapter {
 		mOptions = new DisplayImageOptions.Builder()
 		.showImageOnLoading(R.drawable.empty_photo)
 		.cacheInMemory(true)
-		.cacheInMemory(true)
+		.cacheOnDisk(true)
 		.considerExifParams(true)
 		.displayer(new BitmapDisplayer() {
 			
